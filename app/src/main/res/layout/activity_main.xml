@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayoutK xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/bookLayout"
@@ -8,4 +8,4 @@
     android:fitsSystemWindows="true"
     tools:context="com.example.rishabh.event.MainActivity">
 
-</android.support.constraint.ConstraintLayout>
+</RelativeLayoutK>
