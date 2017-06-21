@@ -1,0 +1,405 @@
+diff --git a/.idea/misc.xml b/.idea/misc.xml
+index fbb6828..5d19981 100644
+--- a/.idea/misc.xml
++++ b/.idea/misc.xml
+@@ -37,7 +37,7 @@
+     <ConfirmationsSetting value="0" id="Add" />
+     <ConfirmationsSetting value="0" id="Remove" />
+   </component>
+-  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" default="true" assert-keyword="true" jdk-15="true" project-jdk-name="1.8" project-jdk-type="JavaSDK">
++  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_7" default="true" assert-keyword="true" jdk-15="true" project-jdk-name="1.8" project-jdk-type="JavaSDK">
+     <output url="file://$PROJECT_DIR$/build/classes" />
+   </component>
+   <component name="ProjectType">
+diff --git a/.idea/vcs.xml b/.idea/vcs.xml
+new file mode 100644
+index 0000000..94a25f7
+--- /dev/null
++++ b/.idea/vcs.xml
+@@ -0,0 +1,6 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project version="4">
++  <component name="VcsDirectoryMappings">
++    <mapping directory="$PROJECT_DIR$" vcs="Git" />
++  </component>
++</project>
+\ No newline at end of file
+diff --git a/app/build.gradle b/app/build.gradle
+index e01208d..67bcbeb 100644
+--- a/app/build.gradle
++++ b/app/build.gradle
+@@ -25,6 +25,9 @@ dependencies {
+         exclude group: 'com.android.support', module: 'support-annotations'
+     })
+     compile 'com.android.support:appcompat-v7:25.3.1'
++    ompile 'com.google.firebase:firebase-core:9.4.0'
+     testCompile 'junit:junit:4.12'
+     compile 'com.android.support.constraint:constraint-layout:1.0.2'
++    compile 'com.android.support:design:25.3.1'
+ }
++apply plugin: 'com.google.gms.google-services'
+diff --git a/app/src/main/AndroidManifest.xml b/app/src/main/AndroidManifest.xml
+index c4f5987..6b1ebc0 100644
+--- a/app/src/main/AndroidManifest.xml
++++ b/app/src/main/AndroidManifest.xml
+@@ -8,13 +8,15 @@
+         android:label="@string/app_name"
+         android:supportsRtl="true"
+         android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+-        <activity android:name=".MainActivity">
++        <activity android:name=".EventList">
+             <intent-filter>
+                 <action android:name="android.intent.action.MAIN" />
+ 
+                 <category android:name="android.intent.category.LAUNCHER" />
+             </intent-filter>
+         </activity>
++        <activity android:name=".MainActivity" />
++        <activity android:name=".postActivity"></activity>
+     </application>
+ 
+ </manifest>
+\ No newline at end of file
+diff --git a/app/src/main/java/com/example/rishabh/event/Custom_Adapter.java b/app/src/main/java/com/example/rishabh/event/Custom_Adapter.java
+new file mode 100644
+index 0000000..7b2d18e
+--- /dev/null
++++ b/app/src/main/java/com/example/rishabh/event/Custom_Adapter.java
+@@ -0,0 +1,38 @@
++package com.example.rishabh.event;
++
++import android.content.Context;
++import android.support.annotation.NonNull;
++import android.view.LayoutInflater;
++import android.view.View;
++import android.view.ViewGroup;
++import android.widget.ArrayAdapter;
++import android.widget.ImageView;
++import android.widget.TextView;
++
++/**
++ * Created by Rishabh on 21-06-2017.
++ */
++
++class Custom_Adapter extends ArrayAdapter<String> {
++
++    Custom_Adapter(Context context, String[] foods) {
++        super(context,R.layout.custom_row, foods);
++    }
++
++    @NonNull
++    @Override
++    public View getView(int position, View convertView, ViewGroup parent) {
++        LayoutInflater myInflater= LayoutInflater.from(getContext());
++        View customView=myInflater.inflate(R.layout.custom_row,parent,false);
++
++        //getting references
++        String singleEventItem=getItem(position);
++        TextView myTxt=(TextView)customView.findViewById(R.id.textView);
++
++
++        myTxt.setText(singleEventItem);
++
++
++        return customView;
++    }
++}
+\ No newline at end of file
+diff --git a/app/src/main/java/com/example/rishabh/event/EventList.java b/app/src/main/java/com/example/rishabh/event/EventList.java
+new file mode 100644
+index 0000000..cc95bb3
+--- /dev/null
++++ b/app/src/main/java/com/example/rishabh/event/EventList.java
+@@ -0,0 +1,49 @@
++package com.example.rishabh.event;
++
++import android.content.Intent;
++import android.support.design.widget.FloatingActionButton;
++import android.support.v7.app.AppCompatActivity;
++import android.os.Bundle;
++import android.view.View;
++import android.widget.AdapterView;
++import android.widget.ListAdapter;
++import android.widget.ListView;
++import android.widget.Toast;
++
++public class EventList extends AppCompatActivity {
++
++    @Override
++    protected void onCreate(Bundle savedInstanceState) {
++        super.onCreate(savedInstanceState);
++        setContentView(R.layout.activity_event_list);
++
++        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
++        fab.setOnClickListener(new View.OnClickListener() {
++            @Override
++            public void onClick(View view) {
++                // Click action
++                Intent intent = new Intent(EventList.this, postActivity.class);
++                startActivity(intent);
++            }
++        });
++
++        //making basic list of text items
++        String[] events={"Gdg","Ieee","Acm","Csi","Mtg"};
++        //making adaptor used to convert java code into list items
++        ListAdapter myAdaptor=new Custom_Adapter(this,events);
++        ListView myListView=(ListView)findViewById(R.id.myList);
++        myListView.setAdapter(myAdaptor);
++        //creating onclicklistener so that when items are clicked function happens
++        myListView.setOnItemClickListener(
++                new AdapterView.OnItemClickListener(){
++                    @Override
++                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
++                        //converting the position value into array
++                        String event=String.valueOf(parent.getItemAtPosition(position));
++                        Toast.makeText(EventList.this,event, Toast.LENGTH_LONG).show();
++                    }
++                }
++        );
++    }
++    }
++
+diff --git a/app/src/main/res/drawable/ic_add_black_24dp.xml b/app/src/main/res/drawable/ic_add_black_24dp.xml
+new file mode 100644
+index 0000000..b5b5ba4
+--- /dev/null
++++ b/app/src/main/res/drawable/ic_add_black_24dp.xml
+@@ -0,0 +1,9 @@
++<vector xmlns:android="http://schemas.android.com/apk/res/android"
++        android:width="24dp"
++        android:height="24dp"
++        android:viewportWidth="24.0"
++        android:viewportHeight="24.0">
++    <path
++        android:fillColor="#ffffff"
++        android:pathData="M19,13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
++</vector>
+diff --git a/app/src/main/res/drawable/ic_chevron_right_black_24dp.xml b/app/src/main/res/drawable/ic_chevron_right_black_24dp.xml
+new file mode 100644
+index 0000000..2483512
+--- /dev/null
++++ b/app/src/main/res/drawable/ic_chevron_right_black_24dp.xml
+@@ -0,0 +1,9 @@
++<vector xmlns:android="http://schemas.android.com/apk/res/android"
++        android:width="24dp"
++        android:height="24dp"
++        android:viewportWidth="24.0"
++        android:viewportHeight="24.0">
++    <path
++        android:fillColor="#FF000000"
++        android:pathData="M10,6L8.59,7.41 13.17,12l-4.58,4.59L10,18l6,-6z"/>
++</vector>
+diff --git a/app/src/main/res/drawable/ic_info_outline_black_24dp.xml b/app/src/main/res/drawable/ic_info_outline_black_24dp.xml
+new file mode 100644
+index 0000000..cf53e14
+--- /dev/null
++++ b/app/src/main/res/drawable/ic_info_outline_black_24dp.xml
+@@ -0,0 +1,9 @@
++<vector xmlns:android="http://schemas.android.com/apk/res/android"
++        android:width="24dp"
++        android:height="24dp"
++        android:viewportWidth="24.0"
++        android:viewportHeight="24.0">
++    <path
++        android:fillColor="#FF000000"
++        android:pathData="M11,17h2v-6h-2v6zM12,2C6.48,2 2,6.48 2,12s4.48,10 10,10 10,-4.48 10,-10S17.52,2 12,2zM12,20c-4.41,0 -8,-3.59 -8,-8s3.59,-8 8,-8 8,3.59 8,8 -3.59,8 -8,8zM11,9h2L13,7h-2v2z"/>
++</vector>
+diff --git a/app/src/main/res/drawable/ic_place_black_24dp.xml b/app/src/main/res/drawable/ic_place_black_24dp.xml
+new file mode 100644
+index 0000000..e3291a9
+--- /dev/null
++++ b/app/src/main/res/drawable/ic_place_black_24dp.xml
+@@ -0,0 +1,9 @@
++<vector xmlns:android="http://schemas.android.com/apk/res/android"
++        android:width="24dp"
++        android:height="24dp"
++        android:viewportWidth="24.0"
++        android:viewportHeight="24.0">
++    <path
++        android:fillColor="#FF000000"
++        android:pathData="M12,2C8.13,2 5,5.13 5,9c0,5.25 7,13 7,13s7,-7.75 7,-13c0,-3.87 -3.13,-7 -7,-7zM12,11.5c-1.38,0 -2.5,-1.12 -2.5,-2.5s1.12,-2.5 2.5,-2.5 2.5,1.12 2.5,2.5 -1.12,2.5 -2.5,2.5z"/>
++</vector>
+diff --git a/app/src/main/res/drawable/ic_query_builder_black_24dp.xml b/app/src/main/res/drawable/ic_query_builder_black_24dp.xml
+new file mode 100644
+index 0000000..fdcce49
+--- /dev/null
++++ b/app/src/main/res/drawable/ic_query_builder_black_24dp.xml
+@@ -0,0 +1,9 @@
++<vector xmlns:android="http://schemas.android.com/apk/res/android"
++        android:width="24dp"
++        android:height="24dp"
++        android:viewportWidth="24.0"
++        android:viewportHeight="24.0">
++    <path
++        android:fillColor="#FF000000"
++        android:pathData="M11.99,2C6.47,2 2,6.48 2,12s4.47,10 9.99,10C17.52,22 22,17.52 22,12S17.52,2 11.99,2zM12,20c-4.42,0 -8,-3.58 -8,-8s3.58,-8 8,-8 8,3.58 8,8 -3.58,8 -8,8zM12.5,7L11,7v6l5.25,3.15 0.75,-1.23 -4.5,-2.67z"/>
++</vector>
+diff --git a/app/src/main/res/drawable/ic_thumb_up_black_24dp.xml b/app/src/main/res/drawable/ic_thumb_up_black_24dp.xml
+new file mode 100644
+index 0000000..a68b70b
+--- /dev/null
++++ b/app/src/main/res/drawable/ic_thumb_up_black_24dp.xml
+@@ -0,0 +1,9 @@
++<vector xmlns:android="http://schemas.android.com/apk/res/android"
++        android:width="24dp"
++        android:height="24dp"
++        android:viewportWidth="24.0"
++        android:viewportHeight="24.0">
++    <path
++        android:fillColor="#2d34f7"
++        android:pathData="M1,21h4L5,9L1,9v12zM23,10c0,-1.1 -0.9,-2 -2,-2h-6.31l0.95,-4.57 0.03,-0.32c0,-0.41 -0.17,-0.79 -0.44,-1.06L14.17,1 7.59,7.59C7.22,7.95 7,8.45 7,9v10c0,1.1 0.9,2 2,2h9c0.83,0 1.54,-0.5 1.84,-1.22l3.02,-7.05c0.09,-0.23 0.14,-0.47 0.14,-0.73v-1.91l-0.01,-0.01L23,10z"/>
++</vector>
+diff --git a/app/src/main/res/layout/activity_event_list.xml b/app/src/main/res/layout/activity_event_list.xml
+new file mode 100644
+index 0000000..b367d59
+--- /dev/null
++++ b/app/src/main/res/layout/activity_event_list.xml
+@@ -0,0 +1,27 @@
++<?xml version="1.0" encoding="utf-8"?>
++<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
++    xmlns:tools="http://schemas.android.com/tools"
++    android:id="@+id/activity_event_list"
++    android:layout_width="match_parent"
++    android:layout_height="match_parent"
++    android:paddingBottom="@dimen/activity_vertical_margin"
++
++    android:paddingRight="@dimen/activity_horizontal_margin"
++    android:paddingTop="@dimen/activity_vertical_margin"
++    tools:context="com.example.rishabh.event.EventList">
++
++    <ListView
++        android:layout_width="match_parent"
++        android:layout_height="match_parent"
++        android:layout_alignParentTop="true"
++        android:layout_alignParentStart="true"
++        android:id="@+id/myList" />
++    <android.support.design.widget.FloatingActionButton
++        android:id="@+id/fab"
++        android:layout_width="wrap_content"
++        android:layout_height="wrap_content"
++
++        android:layout_alignParentBottom="true"
++        android:layout_alignParentRight="true"
++        android:src="@drawable/ic_add_black_24dp" />
++</RelativeLayout>
+diff --git a/app/src/main/res/layout/custom_row.xml b/app/src/main/res/layout/custom_row.xml
+new file mode 100644
+index 0000000..0035af1
+--- /dev/null
++++ b/app/src/main/res/layout/custom_row.xml
+@@ -0,0 +1,67 @@
++<?xml version="1.0" encoding="utf-8"?>
++<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
++    xmlns:app="http://schemas.android.com/apk/res-auto"
++    android:orientation="horizontal" android:layout_width="match_parent"
++    android:layout_height="match_parent"
++    android:weightSum="1">
++
++    <ImageView
++        app:srcCompat="@color/colorPrimary"
++        android:id="@+id/imageView"
++        android:layout_width="10dp"
++        android:layout_height="90dp"
++
++        android:paddingTop="5dp" />
++<LinearLayout
++    android:layout_width="270dp"
++    android:layout_height="wrap_content"
++    android:orientation="vertical">
++    <TextView
++        android:layout_width="wrap_content"
++        android:layout_height="wrap_content"
++        android:id="@+id/textView"
++        android:text="Event Name"
++        android:layout_marginLeft="20dp"
++        android:textSize="30dp"
++
++        android:layout_alignParentTop="true"
++        android:layout_toEndOf="@+id/imageView"
++        android:layout_marginStart="20dp" />
++<TextView
++    android:layout_width="wrap_content"
++    android:layout_height="wrap_content"
++    android:layout_marginLeft="20dp"
++    android:layout_marginTop="5dp"
++    android:text="33 going"
++    android:layout_marginBottom="5dp"
++    android:textSize="15dp"
++    />
++    <ImageView
++        android:layout_width="match_parent"
++        android:layout_height="wrap_content"
++        android:src="@color/e1"/>
++    <TextView
++        android:layout_width="wrap_content"
++        android:layout_height="wrap_content"
++        android:layout_below="@+id/textView"
++        android:layout_toEndOf="@+id/imageView"
++        android:id="@+id/textView2"
++        android:layout_marginLeft="20dp"
++        android:layout_marginTop="5dp"
++        android:text="#Tags"
++        android:layout_marginBottom="5dp"
++        android:textSize="15dp"
++        />
++</LinearLayout>
++
++
++    <ImageView
++        android:layout_width="61dp"
++        android:layout_height="60dp"
++        android:src="@drawable/ic_chevron_right_black_24dp"
++        android:layout_toEndOf="@+id/imageView"
++        android:id="@+id/imageView2"
++
++        android:layout_marginTop="10dp"/>
++
++</LinearLayout>
+\ No newline at end of file
+diff --git a/app/src/main/res/mipmap-hdpi/ic_add_black_24dp.png b/app/src/main/res/mipmap-hdpi/ic_add_black_24dp.png
+new file mode 100644
+index 0000000..c04b523
+Binary files /dev/null and b/app/src/main/res/mipmap-hdpi/ic_add_black_24dp.png differ
+diff --git a/app/src/main/res/mipmap-mdpi/ic_add_black_24dp.png b/app/src/main/res/mipmap-mdpi/ic_add_black_24dp.png
+new file mode 100644
+index 0000000..23bf119
+Binary files /dev/null and b/app/src/main/res/mipmap-mdpi/ic_add_black_24dp.png differ
+diff --git a/app/src/main/res/mipmap-xhdpi/ic_add_black_24dp.png b/app/src/main/res/mipmap-xhdpi/ic_add_black_24dp.png
+new file mode 100644
+index 0000000..3191d52
+Binary files /dev/null and b/app/src/main/res/mipmap-xhdpi/ic_add_black_24dp.png differ
+diff --git a/app/src/main/res/mipmap-xxhdpi/ic_add_black_24dp.png b/app/src/main/res/mipmap-xxhdpi/ic_add_black_24dp.png
+new file mode 100644
+index 0000000..a84106b
+Binary files /dev/null and b/app/src/main/res/mipmap-xxhdpi/ic_add_black_24dp.png differ
+diff --git a/app/src/main/res/mipmap-xxxhdpi/ic_add_black_24dp.png b/app/src/main/res/mipmap-xxxhdpi/ic_add_black_24dp.png
+new file mode 100644
+index 0000000..3cb1092
+Binary files /dev/null and b/app/src/main/res/mipmap-xxxhdpi/ic_add_black_24dp.png differ
+diff --git a/app/src/main/res/values/colors.xml b/app/src/main/res/values/colors.xml
+index 3ab3e9c..ccf9e5c 100644
+--- a/app/src/main/res/values/colors.xml
++++ b/app/src/main/res/values/colors.xml
+@@ -1,6 +1,7 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <resources>
+-    <color name="colorPrimary">#3F51B5</color>
++    <color name="e1">#e1e1e1</color>
++    <color name="colorPrimary">#788aec</color>
+     <color name="colorPrimaryDark">#303F9F</color>
+     <color name="colorAccent">#FF4081</color>
+ </resources>
+diff --git a/build.gradle b/build.gradle
+index c20bca1..8eae9b0 100644
+--- a/build.gradle
++++ b/build.gradle
+@@ -6,7 +6,7 @@ buildscript {
+     }
+     dependencies {
+         classpath 'com.android.tools.build:gradle:2.2.2'
+-
++        classpath 'com.google.gms:google-services:3.1.0'
+         // NOTE: Do not place your application dependencies here; they belong
+         // in the individual module build.gradle files
+     }
