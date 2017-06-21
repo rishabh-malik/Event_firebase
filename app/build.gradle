@@ -24,24 +24,18 @@ dependencies {
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-
-
-
-
-
-
-    // Displaying images
-
-    compile 'com.github.bumptech.glide:glide:3.6.1'
+    compile 'com.android.support.constraint:constraint-layout:1.0.2'
 
     // real time database
 
+
+    compile 'com.github.bumptech.glide:glide:3.6.1'
+    // real time database
     compile 'com.google.firebase:firebase-database:10.0.0'
-
     compile 'com.google.firebase:firebase-auth:10.0.0'
-
     compile 'com.firebaseui:firebase-ui-auth:1.1.1'
 }
 
 
-apply plugin: 'com.google.gms.google-services'
+
+    apply plugin: 'com.google.gms.google-services'

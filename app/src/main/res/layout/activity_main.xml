@@ -8,5 +8,4 @@
     android:fitsSystemWindows="true"
     tools:context="com.example.rishabh.event.MainActivity">
 
-
 </RelativeLayout>
