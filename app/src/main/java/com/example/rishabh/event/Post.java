@@ -9,12 +9,16 @@ public class Post {
     private String description;
     private  String name;
     private  String tag;
+    private String datetime;
+    private int going;
 
-    public Post(String location, String description, String name, String tag) {
+    public Post(String location, String description, String name, String tag, String datetime, int going) {
         this.location = location;
         this.description = description;
         this.name = name;
         this.tag = tag;
+        this.datetime = datetime;
+        this.going = going;
     }
 
     public String getLocation() {
@@ -49,4 +53,19 @@ public class Post {
         this.tag = tag;
     }
 
+    public String getDatetime() {
+        return datetime;
+    }
+
+    public void setDatetime(String datetime) {
+        this.datetime = datetime;
+    }
+
+    public int getGoing() {
+        return going;
+    }
+
+    public void setGoing(int going) {
+        this.going = going;
+    }
 }
